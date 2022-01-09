@@ -37,7 +37,7 @@ export const uploadImage = async (req, res) => {
     const img = await Image.create({
       title,
       tags,
-      cate: isCategory,
+      category: isCategory,
       owner: user,
       image: result.url,
     });

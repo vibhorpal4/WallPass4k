@@ -56,7 +56,7 @@ export const uploadImage = async (req, res) => {
 
 export const getAllImages = async (req, res) => {
   const { latest, category, tag } = req.query;
-  try
+  try {
     let imgs;
     if (latest) {
       imgs = await Image.find().sort({ createdAt: -1 }).limit(10);

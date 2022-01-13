@@ -1,8 +1,4 @@
 import mongoose from "mongoose";
-import slug from "mongoose-slug-generator";
-
-const options = { separator: "-", lang: "eng", truncate: 1 };
-mongoose.plugin(slug, options);
 
 const imageSchema = new mongoose.Schema(
   {
@@ -24,11 +20,6 @@ const imageSchema = new mongoose.Schema(
     },
     tags: {
       type: [String],
-    },
-    slug: {
-      type: String,
-      slug: "title",
-      unique: true,
     },
   },
   { timestamps: true }

@@ -1,15 +1,12 @@
-import express from 'express'
-import authMiddleware from '../Middlewares/authMiddleware.js'
-import * as imageController from '../Controllers/imageController.js'
+import express from "express";
+import authMiddleware from "../Middlewares/authMiddleware.js";
+import * as imageController from "../Controllers/imageController.js";
 
+const router = express.Router();
 
-const router = express.Router()
+router.post("/upload", authMiddleware, imageController.uploadImage);
+router.get("/", imageController.getAllImages);
+router.get("/:id", imageController.getImage);
+router.delete("/:id/delete", authMiddleware, imageController.deleteImage);
 
-
-router.post('/upload', authMiddleware, imageController.uploadImage)
-router.get('/', imageController.getAllImages)
-router.get('/:slug', imageController.getImage)
-router.delete('/:slug/delete', authMiddleware, imageController.deleteImage)
-
-
-export default router 
+export default router;

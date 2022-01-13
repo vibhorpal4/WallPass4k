@@ -56,56 +56,40 @@ export const uploadImage = async (req, res) => {
 
 export const getAllImages = async (req, res) => {
   const { latest, category, tag } = req.query;
-  try {
-    let images = await Image.aggregate([
-      {
-        $lookup: {
-          from: "categories",
-          localField: "category",
-          foreignField: "_id",
-          as: "category",
+  try
+    let imgs;
+    if (latest) {
+      imgs = await Image.find().sort({ createdAt: -1 }).limit(10);
+    } else if (category) {
+      imgs = await Image.find({
+        category: {
+          $in: category,
         },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "owner",
-          foreignField: "_id",
-          as: "owner",
+      });
+    } else if (tag) {
+      imgs = await Image.find({
+        tags: {
+          $in: [tag],
         },
-      },
-    ]);
+      });
+    } else {
+      imgs = await Image.find();
+    }
 
-    // if (latest) {
-    //   images = await Image.find().sort({ createdAt: -1 }).limit(10);
-    // } else if (category) {
-    //   images = await Image.find({
-    //     category: {
-    //       $in: category,
-    //     },
-    //   });
-    // } else if (tag) {
-    //   images = await Image.find({
-    //     tags: {
-    //       $in: [tag],
-    //     },
-    //   });
-    // } else {
-    //   images = await Image.find();
-    // }
-    if (images.length === 0) {
+    if (imgs.length === 0) {
       return res.status(404).json({ message: `No Images found` });
     }
-    return res.status(200).json(images);
+    return res.status(200).json(imgs);
   } catch (error) {
+    console.log(error);
     return res.status(500).json(error.message);
   }
 };
 
 export const getImage = async (req, res) => {
-  const { slug } = req.params;
+  const { id } = req.params;
   try {
-    const image = await Image.findOne({ slug });
+    const image = await Image.findOne({ _id: id });
     if (!image) {
       return res.status(404).json({ message: `Image Not Found` });
     }
@@ -116,11 +100,9 @@ export const getImage = async (req, res) => {
 };
 
 export const deleteImage = async (req, res) => {
-  const { slug } = req.params;
+  const { id } = req.params;
   try {
-    const image = await Image.findOne({ slug });
-    const user = await User.findOne({ _id: image.owner });
-
+    const image = await Image.findOne({ _id: id });
     if (!image) {
       return res.status(404).json({ message: `Image Not Found` });
     }

@@ -46,9 +46,6 @@ export const uploadImage = async (req, res) => {
 
     removeTmp(image.tempFilePath);
 
-    await user.updateOne({ $push: { images: imgs } });
-    await isCategory.updateOne({ $push: { images: imgs } });
-
     return await res
       .status(201)
       .json({ message: `Image upload successfull`, imgs });
@@ -60,36 +57,42 @@ export const uploadImage = async (req, res) => {
 export const getAllImages = async (req, res) => {
   const { latest, category, tag } = req.query;
   try {
-    // const images = await Image.aggregate([
-    //   {
-    //     $lookup: {
-    //       from: "Category",
-    //       localField: "_id",
-    //       foreignField: "category",
-    //       as: "category",
+    let images = await Image.aggregate([
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "category",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "owner",
+          foreignField: "_id",
+          as: "owner",
+        },
+      },
+    ]);
+
+    // if (latest) {
+    //   images = await Image.find().sort({ createdAt: -1 }).limit(10);
+    // } else if (category) {
+    //   images = await Image.find({
+    //     category: {
+    //       $in: category,
     //     },
-    //   },
-    // ]);
-
-    let images;
-
-    if (latest) {
-      images = await Image.find().sort({ createdAt: -1 }).limit(10);
-    } else if (category) {
-      images = await Image.find({
-        category: {
-          $in: category,
-        },
-      });
-    } else if (tag) {
-      images = await Image.find({
-        tags: {
-          $in: [tag],
-        },
-      });
-    } else {
-      images = await Image.find();
-    }
+    //   });
+    // } else if (tag) {
+    //   images = await Image.find({
+    //     tags: {
+    //       $in: [tag],
+    //     },
+    //   });
+    // } else {
+    //   images = await Image.find();
+    // }
     if (images.length === 0) {
       return res.status(404).json({ message: `No Images found` });
     }
@@ -124,17 +127,6 @@ export const deleteImage = async (req, res) => {
     if (!req.user.isAdmin) {
       return res.status(401).json({ message: `Invalid Access` });
     }
-    const category = await Category.findOne({ _id: image.category });
-    await category.updateOne({
-      $pull: {
-        images: image._id,
-      },
-    });
-    await user.updateOne({
-      $pull: {
-        images: image._id,
-      },
-    });
     await image.deleteOne();
     return res.status(200).json({ message: `Image delete successfully` });
   } catch (error) {

@@ -8,5 +8,6 @@ router.post("/upload", authMiddleware, imageController.uploadImage);
 router.get("/", imageController.getAllImages);
 router.get("/:id", imageController.getImage);
 router.delete("/:id/delete", authMiddleware, imageController.deleteImage);
+router.put("/:id/like", authMiddleware, imageController.likeImage);
 
 export default router;

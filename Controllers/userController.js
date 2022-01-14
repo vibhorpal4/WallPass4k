@@ -150,3 +150,58 @@ export const updateUser = async (req, res) => {
     return res.status(500).json(error.message);
   }
 };
+
+export const followUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findOne({ _id: id });
+    const currentUser = await User.findOne({ _id: req.user._id });
+    if (user._id.toString() === currentUser._id.toString()) {
+      return res.status(400).json({ message: `You can't follow yourself` });
+    } else {
+      if (!user.followers.includes(req.user._id)) {
+        await user.updateOne({
+          $push: { followers: req.user._id },
+        });
+        await currentUser.updateOne({
+          $push: { followings: user._id },
+        });
+        return res.status(200).json({ message: `User has been followed` });
+      } else {
+        return res
+          .status(403)
+          .json({ message: `You allready follow this user` });
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json(error.message);
+  }
+};
+
+export const unfollowUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findOne({ _id: id });
+    const currentUser = await User.findOne({ _id: req.user._id });
+    if (user._id.toString() === currentUser._id.toString()) {
+      return res.status(400).json({ message: `You can't unFollow yourself` });
+    } else {
+      if (user.followers.includes(req.user._id)) {
+        await user.updateOne({
+          $pull: { followers: req.user._id },
+        });
+        await currentUser.updateOne({
+          $pull: { followings: user._id },
+        });
+        return res.status(200).json({ message: `User has been unFollowed` });
+      } else {
+        return res
+          .status(403)
+          .json({ message: `You allready unfollow this user` });
+      }
+    }
+  } catch (error) {
+    return res.status(500).json(error.message);
+  }
+};

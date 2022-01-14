@@ -21,6 +21,10 @@ const imageSchema = new mongoose.Schema(
     tags: {
       type: [String],
     },
+    likes: {
+      type: Array,
+      default: [],
+    },
   },
   { timestamps: true }
 );

@@ -57,23 +57,17 @@ export const uploadImage = async (req, res) => {
 export const getAllImages = async (req, res) => {
   const { latest, category, tag } = req.query;
   try {
-    let imgs;
+    const imgs = await Image.find();
+    const cate = await Category.findOne({ name: category });
     if (latest) {
-      imgs = await Image.find().sort({ createdAt: -1 }).limit(10);
-    } else if (category) {
-      imgs = await Image.find({
-        category: {
-          $in: category,
-        },
+      const imgsLatest = await Image.find().sort({ createdAt: -1 }).limit(10);
+      return res.status(200).json(imgsLatest);
+    }
+    if (category) {
+      const imgsCat = await Image.find({
+        category: cate._id,
       });
-    } else if (tag) {
-      imgs = await Image.find({
-        tags: {
-          $in: [tag],
-        },
-      });
-    } else {
-      imgs = await Image.find();
+      return res.status(200).json(imgsCat);
     }
 
     if (imgs.length === 0) {
@@ -111,6 +105,27 @@ export const deleteImage = async (req, res) => {
     }
     await image.deleteOne();
     return res.status(200).json({ message: `Image delete successfully` });
+  } catch (error) {
+    return res.status(500).json(error.message);
+  }
+};
+
+export const likeImage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const image = await Image.findOne({ _id: id });
+
+    if (!image.likes.includes(req.user._id)) {
+      await image.updateOne({
+        $push: { likes: req.user._id },
+      });
+      res.status(200).json({ message: `This image has been liked` });
+    } else {
+      await image.updateOne({
+        $pull: { likes: req.user._id },
+      });
+      res.status(200).json({ message: `This image had been unliked` });
+    }
   } catch (error) {
     return res.status(500).json(error.message);
   }

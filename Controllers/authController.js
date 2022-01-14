@@ -49,7 +49,7 @@ export const login = async (req, res) => {
         .status(404)
         .json({ message: `Please enter all required fields` });
     }
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("-password");
     if (!user) {
       return res.status(404).json({ message: `User not found` });
     }
@@ -60,7 +60,7 @@ export const login = async (req, res) => {
     }
 
     const token = await generateToken(user._id);
-    return res.status(200).json({ message: `Login Successfull`, token });
+    return res.status(200).json({ message: `Login Successfull`, token, user });
   } catch (error) {
     return res.status(500).json(error.message);
   }

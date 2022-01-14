@@ -49,7 +49,7 @@ export const login = async (req, res) => {
         .status(404)
         .json({ message: `Please enter all required fields` });
     }
-    const user = await User.findOne({ email }).select("-password");
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: `User not found` });
     }

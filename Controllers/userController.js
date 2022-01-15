@@ -86,7 +86,7 @@ export const deleteUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: `User not found` });
     }
-    if (user.username === req.user.username || user.isAdmin) {
+    if (user.username === req.user.username || req.user.isAdmin) {
       await user.deleteOne();
       return res.status(200).json({ message: `Account deleted succesfully` });
     } else {

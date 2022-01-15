@@ -105,7 +105,7 @@ export const updateUser = async (req, res) => {
       return res.status(404).json({ message: `User not found` });
     }
 
-    if (req.user.username === user.username || user.isAdmin) {
+    if (req.user.username === user.username || req.user.isAdmin) {
       if (req.files) {
         const { profile_pic } = req.files;
 

@@ -28,7 +28,8 @@ const userSchema = new mongoose.Schema(
     },
     profile_pic: {
       type: String,
-      default: "",
+      default:
+        "https://st.depositphotos.com/1537427/3571/v/950/depositphotos_35717211-stock-illustration-vector-user-icon.jpg",
     },
     isAdmin: {
       type: Boolean,

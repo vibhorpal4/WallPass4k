@@ -109,11 +109,6 @@ export const updateUser = async (req, res) => {
       if (req.files) {
         const { profile_pic } = req.files;
 
-        // if (profile_pic.size > 1024 * 1024) {
-        //     removeTmp(profile_pic.tempFilePath)
-        //     return res.status(400).json({ msg: "Size too large" })
-        // }
-
         if (
           profile_pic.mimetype !== "image/jpeg" &&
           profile_pic.mimetype !== "image/png"
@@ -138,7 +133,19 @@ export const updateUser = async (req, res) => {
           .status(200)
           .json({ message: `User Profile update successfull` });
       } else {
-        await user.updateOne({ $set: req.body });
+        const { username, name, email, profile_pic, isAdmin } = req.body;
+        const image = await cloudinary.v2.uploader.upload(profile_pic, {
+          folder: "User Profile",
+        });
+        await user.updateOne({
+          $set: {
+            username,
+            name,
+            email,
+            profile_pic: image.url,
+            isAdmin,
+          },
+        });
         return res
           .status(200)
           .json({ message: `User Profile Update successfully` });

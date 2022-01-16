@@ -134,6 +134,7 @@ export const updateUser = async (req, res) => {
           .json({ message: `User Profile update successfull` });
       } else {
         const { username, name, email, profile_pic, isAdmin } = req.body;
+        console.log(profile_pic);
         const image = await cloudinary.v2.uploader.upload(profile_pic, {
           folder: "User Profile",
         });

@@ -30,9 +30,12 @@ export const uploadImage = async (req, res) => {
 
     const user = req.user;
 
-    const result = await cloudinary.v2.uploader.upload(image.tempFilePath, {
-      folder: "Images",
-    });
+    const result = await cloudinary.v2.uploader.upload(
+      image.tempFilePath || req.file.path,
+      {
+        folder: "Images",
+      }
+    );
 
     const img = await Image.create({
       title,
